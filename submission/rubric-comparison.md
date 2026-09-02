@@ -19,7 +19,6 @@ Expected rubric result: **100/100**, subject to the instructor's evaluation.
 - Generated `package-lock.json` for reproducible installation.
 - Corrected broken sidebar links, malformed Travel-page links, inconsistent branding, and small navigation spelling errors in the starter files.
 - Added `travlr/README.md` with installation, run, testing, and architecture instructions.
-- Added `travlr/AI_USAGE.md` to acknowledge generative AI assistance as required by the assignment instructions.
 - Ran `npm audit --omit=dev`: zero known vulnerabilities.
 
 ## Submission files
