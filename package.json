@@ -1,0 +1,9 @@
+{
+  "name": "full-stack-development-class",
+  "private": true,
+  "scripts": {
+    "install:travlr": "npm --prefix travlr install",
+    "start": "npm --prefix travlr start",
+    "test": "npm --prefix travlr test"
+  }
+}
