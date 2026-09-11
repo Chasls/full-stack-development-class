@@ -92,6 +92,19 @@ test('Express serves the website stylesheet', async () => {
   assert.match(response.headers.get('content-type'), /^text\/css/);
 });
 
+test('Travel route renders controller data with Handlebars', async () => {
+  const response = await fetch(`${baseUrl}/travel`);
+  const body = await response.text();
+
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /^text\/html/);
+  assert.match(body, /<title>Travel - Travlr Getaways<\/title>/);
+  assert.match(body, /Gale Reef/);
+  assert.match(body, /Dawson&#x27;s Reef/);
+  assert.match(body, /Claire&#x27;s Reef/);
+  assert.doesNotMatch(body, /{{[#/]?each|{{title}}/);
+});
+
 test('Express exposes a diagnostic endpoint', async () => {
   const response = await fetch(`${baseUrl}/health`);
 
