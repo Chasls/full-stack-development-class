@@ -1,6 +1,6 @@
-# Travlr Getaways — Module One
+# Travlr Getaways - Module Two
 
-This folder is a working Node.js and Express shell for the supplied Travlr Getaways customer-facing website.
+This folder contains the Express application for the Travlr Getaways customer-facing website. The travel page uses an MVC structure and Handlebars templates, while the remaining supplied pages and site assets continue to be served from the `public` folder.
 
 ## Run the application
 
@@ -18,7 +18,7 @@ Run these commands from the `travlr` folder. If your terminal is at the reposito
    npm start
    ```
 
-3. Open <http://localhost:3000> in a browser.
+3. Open <http://localhost:3000/travel> in a browser.
 
 On a Windows computer that blocks PowerShell scripts, use `npm.cmd install`, `npm.cmd start`, and `npm.cmd test` instead. From this repository's root, `npm.cmd start` also starts the application, or you can run `start.cmd`.
 
@@ -28,20 +28,24 @@ On a Windows computer that blocks PowerShell scripts, use `npm.cmd install`, `np
 npm test
 ```
 
-The test suite starts Express on a temporary port and verifies the home page, all supplied HTML pages, the stylesheet, the health endpoint, and 404 handling.
+The test suite verifies all supplied static pages and assets, the `/travel` MVC route, the controller data rendered by Handlebars, the health endpoint, and 404 handling.
 
-## Express architecture
+## Application structure
 
 ```text
 travlr/
-|-- app.js               Express configuration
-|-- server.js            Node.js server entry point
-|-- package.json         Dependencies and run scripts
-|-- public/              Static customer-facing website
-|   |-- *.html
-|   |-- css/
-|   `-- images/
-`-- test/                Automated server tests
+|-- app.js                         Express and Handlebars configuration
+|-- server.js                      Node.js server entry point
+|-- package.json                   Dependencies and run scripts
+|-- app_server/
+|   |-- controllers/travel.js      Travel data and rendering controller
+|   |-- routes/index.js            Public website routes
+|   `-- views/
+|       |-- partials/header.hbs    Shared page header
+|       |-- partials/footer.hbs    Shared page footer
+|       `-- travel.hbs             Dynamic travel page template
+|-- public/                        Static pages, styles, and images
+`-- test/                          Automated application tests
 ```
 
-This structure addresses the Module One rubric by building the site with Node.js and Express, placing all static content in Express's `public` folder, and providing a repeatable test that proves Express serves the content.
+A request to `/travel` moves through the Express route to the travel controller. The controller supplies the page title and trip information, and Handlebars renders that data into the travel view with shared header and footer partials.

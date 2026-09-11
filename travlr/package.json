@@ -2,7 +2,7 @@
   "name": "travlr",
   "version": "1.0.0",
   "private": true,
-  "description": "Module One Express shell for the Travlr Getaways customer website",
+  "description": "Module Two MVC and Handlebars application for the Travlr Getaways customer website",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -12,6 +12,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "hbs": "^4.2.0"
   }
 }
