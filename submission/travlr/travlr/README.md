@@ -50,4 +50,3 @@ travlr/
 ```
 
 A request to `/travel` moves through the Express route to the travel controller. The controller reads and parses `data/trips.json`, supplies the page title and trip collection, and Handlebars renders that data into the travel view with shared header and footer partials.
-
