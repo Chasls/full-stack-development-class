@@ -4,6 +4,7 @@ const express = require('express');
 const hbs = require('hbs');
 const path = require('node:path');
 const travelerRouter = require('./app_server/routes/index');
+const apiRouter = require('./app_server/routes/api');
 
 const app = express();
 const publicDirectory = path.join(__dirname, 'public');
@@ -24,6 +25,7 @@ app.get('/health', (_request, response) => {
 });
 
 app.use('/', travelerRouter);
+app.use('/api', apiRouter);
 
 app.use((_request, response) => {
   response.status(404).type('text').send('Not Found');
