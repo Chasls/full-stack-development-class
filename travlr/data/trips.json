@@ -1,17 +1,32 @@
 [
   {
+    "code": "GALE-REEF",
     "name": "Gale Reef",
+    "length": "7 days",
+    "start": "2027-06-12T00:00:00.000Z",
+    "resort": "Travlr Ocean Resort",
+    "perPerson": "$1,299",
     "image": "reef1.jpg",
-    "description": "<p><strong>Gale Reef:</strong> Sed et augue lorem. In sit amet placerat arcu. Mauris volutpat ipsum ac justo mollis vel vestibulum orci gravida. Vestibulum sit amet porttitor odio. Nulla facilisi. Fusce at pretium felis.</p><p>Sed consequat libero ut turpis venenatis ut aliquam risus semper. Etiam convallis mi vel risus pretium sodales. Etiam nunc lorem ullamcorper vitae laoreet.</p>"
+    "description": "<p><strong>Gale Reef:</strong> Spend seven days exploring clear water, colorful coral, and quiet beaches. The trip includes guided snorkeling, a sunset boat cruise, and a stay at Travlr Ocean Resort.</p>"
   },
   {
+    "code": "DAWSON-REEF",
     "name": "Dawson's Reef",
+    "length": "5 days",
+    "start": "2027-07-10T00:00:00.000Z",
+    "resort": "Travlr Coral Resort",
+    "perPerson": "$999",
     "image": "reef2.jpg",
-    "description": "<p><strong>Dawson's Reef:</strong> Integer magna leo, posuere et dignissim vitae, porttitor at odio. Pellentesque a metus nec magna placerat volutpat. Nunc nisi mi, elementum sit amet aliquet quis, tristique quis nisl. Curabitur odio lacus, blandit ut hendrerit.</p><p>Vulputate, vulputate at est. Morbi aliquet viverra metus eu consectetur. In lorem dui, elementum sit amet convallis ac, tincidunt vel sapien.</p>"
+    "description": "<p><strong>Dawson's Reef:</strong> Discover a lively reef during five days of kayaking, swimming, and optional guided diving. Relax each evening at Travlr Coral Resort.</p>"
   },
   {
+    "code": "CLAIRE-REEF",
     "name": "Claire's Reef",
+    "length": "6 days",
+    "start": "2027-08-14T00:00:00.000Z",
+    "resort": "Travlr Lagoon Resort",
+    "perPerson": "$1,149",
     "image": "reef3.jpg",
-    "description": "<p><strong>Claire's Reef:</strong> Donec sed felis risus. Nulla facilisi. Donec a orci tellus, et auctor odio. Fusce ac orci nibh, quis semper arcu. Cras orci neque, euismod et accumsan ac, sagittis molestie lorem. Proin odio sapien, elementum at tempor non.</p><p>Vulputate eget libero. In hac habitasse platea dictumst. Integer purus justo, egestas eu consectetur eu, cursus in tortor. Quisque nec nunc ac mi ultrices iaculis.</p>"
+    "description": "<p><strong>Claire's Reef:</strong> Enjoy six days of coral viewing, beach walks, and local seafood. Your stay at Travlr Lagoon Resort includes easy access to the reef and nearby island trails.</p>"
   }
 ]
