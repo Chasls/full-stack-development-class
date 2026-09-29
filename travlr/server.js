@@ -1,7 +1,7 @@
 'use strict';
 
 const app = require('./app');
-const { connect, disconnect } = require('./app_server/models/db');
+const { connect, disconnect } = require('./app_api/models/db');
 
 const port = Number.parseInt(process.env.PORT, 10) || 3000;
 
