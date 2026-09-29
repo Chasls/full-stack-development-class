@@ -5,9 +5,9 @@ const { after, before, test } = require('node:test');
 const fs = require('node:fs');
 const path = require('node:path');
 const app = require('../app');
-const { connect, disconnect, mongoose } = require('../app_server/models/db');
-const { seedTrips } = require('../app_server/models/seed');
-const Trip = require('../app_server/models/travlr');
+const { connect, disconnect, mongoose } = require('../app_api/models/db');
+const { seedTrips } = require('../app_api/models/seed');
+const Trip = require('../app_api/models/travlr');
 
 const tripsPath = path.join(__dirname, '..', 'data', 'trips.json');
 const trips = JSON.parse(fs.readFileSync(tripsPath, 'utf8'));
@@ -109,7 +109,7 @@ test('Express serves the website stylesheet', async () => {
   assert.match(response.headers.get('content-type'), /^text\/css/);
 });
 
-test('Travel route renders controller data with Handlebars', async () => {
+test('MVC travel route renders JSON retrieved from the REST API', async () => {
   const response = await fetch(`${baseUrl}/travel`);
   const body = await response.text();
 
@@ -179,9 +179,19 @@ test('Trip API returns seeded documents as JSON', async () => {
   }
 });
 
+test('Trip API collection is sorted by trip name', async () => {
+  const response = await fetch(`${baseUrl}/api/trips`);
+  const body = await response.json();
+  const names = body.map((trip) => trip.name);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(names, [...names].sort((left, right) => left.localeCompare(right)));
+});
+
 test('Trip API retrieves a single trip and reports missing codes', async () => {
   const response = await fetch(`${baseUrl}/api/trips/${trips[0].code}`);
   assert.equal(response.status, 200);
+  assert.match(response.headers.get('content-type'), /^application\/json/);
   assert.equal((await response.json()).name, trips[0].name);
 
   const missing = await fetch(`${baseUrl}/api/trips/NO-SUCH-TRIP`);

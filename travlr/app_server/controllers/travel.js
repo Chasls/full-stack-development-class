@@ -1,17 +1,24 @@
 'use strict';
 
-const Trip = require('../models/travlr');
-
-const travel = async (_request, response) => {
+const travel = async (request, response) => {
   try {
-    const trips = await Trip.find().sort({ name: 1 }).lean();
+    const apiUrl = `${request.protocol}://${request.get('host')}/api/trips`;
+    const apiResponse = await fetch(apiUrl, {
+      headers: { accept: 'application/json' }
+    });
+
+    if (!apiResponse.ok) {
+      throw new Error(`Trip API returned HTTP ${apiResponse.status}`);
+    }
+
+    const trips = await apiResponse.json();
     response.render('travel', {
       title: 'Travel - Travlr Getaways',
       trips
     });
   } catch (error) {
-    console.error('Could not load trips:', error);
-    response.status(503).type('text').send('Trip data unavailable');
+    console.error('Could not load trips from the API:', error);
+    response.status(502).type('text').send('Trip data unavailable');
   }
 };
 

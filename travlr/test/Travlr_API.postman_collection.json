@@ -1,0 +1,72 @@
+{
+  "info": {
+    "name": "Travlr Module Five API",
+    "description": "Requests and tests for the Travlr trip REST endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" }
+  ],
+  "item": [
+    {
+      "name": "Get all trips",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/trips"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.test('returns JSON', () => pm.response.to.be.json);",
+            "pm.test('returns a trip collection', () => {",
+            "  const trips = pm.response.json();",
+            "  pm.expect(trips).to.be.an('array').that.is.not.empty;",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Get one trip by code",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/trips/GALE-REEF"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
+            "pm.test('returns the requested trip', () => {",
+            "  const trip = pm.response.json();",
+            "  pm.expect(trip.code).to.eql('GALE-REEF');",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Missing trip returns 404",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Accept", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/trips/NO-SUCH-TRIP"
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "exec": [
+            "pm.test('returns HTTP 404', () => pm.response.to.have.status(404));",
+            "pm.test('returns a JSON error', () => {",
+            "  pm.expect(pm.response.json()).to.deep.equal({ error: 'Trip not found' });",
+            "});"
+          ]
+        }
+      }]
+    }
+  ]
+}

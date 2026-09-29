@@ -4,7 +4,7 @@ const express = require('express');
 const hbs = require('hbs');
 const path = require('node:path');
 const travelerRouter = require('./app_server/routes/index');
-const apiRouter = require('./app_server/routes/api');
+const apiRouter = require('./app_api/routes/index');
 
 const app = express();
 const publicDirectory = path.join(__dirname, 'public');

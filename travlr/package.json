@@ -2,13 +2,13 @@
   "name": "travlr",
   "version": "1.0.0",
   "private": true,
-  "description": "Module Four MongoDB-backed Travlr Getaways website",
+  "description": "Module Five Travlr Getaways website with a REST API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "node --test",
-    "seed": "node app_server/models/seed.js",
-    "inspect": "node app_server/models/inspect.js"
+    "seed": "node app_api/models/seed.js",
+    "inspect": "node app_api/models/inspect.js"
   },
   "engines": {
     "node": ">=18"
