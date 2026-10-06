@@ -225,6 +225,43 @@ test('Express exposes a diagnostic endpoint', async () => {
   });
 });
 
+test('CRUD API persists additions and updates, renders them publicly, and deletes them', async () => {
+  const trip = { ...trips[0], code: 'CRUD-TEST', name: 'CRUD Test Getaway' };
+  const url = `${baseUrl}/api/trips/${trip.code}`;
+  const options = body => ({ headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  try {
+    const added = await fetch(`${baseUrl}/api/trips`, { method: 'POST', ...options(trip) });
+    assert.equal(added.status, 201);
+    assert.equal((await added.json()).name, trip.name);
+    assert.ok(await Trip.findOne({ code: trip.code }));
+    assert.match(await (await fetch(`${baseUrl}/travel`)).text(), /CRUD Test Getaway/);
+    assert.equal((await fetch(`${baseUrl}/api/trips`, { method: 'POST', ...options(trip) })).status, 409);
+    trip.name = 'Updated CRUD Getaway';
+    const updated = await fetch(url, { method: 'PUT', ...options(trip) });
+    assert.equal(updated.status, 200);
+    assert.equal((await updated.json()).name, trip.name);
+    assert.equal((await Trip.findOne({ code: trip.code })).name, trip.name);
+    assert.match(await (await fetch(`${baseUrl}/travel`)).text(), /Updated CRUD Getaway/);
+    assert.equal((await fetch(url, { method: 'DELETE' })).status, 204);
+    assert.equal(await Trip.findOne({ code: trip.code }), null);
+    assert.equal((await fetch(url)).status, 404);
+    assert.equal((await fetch(url, { method: 'DELETE' })).status, 404);
+    assert.equal((await fetch(url, { method: 'PUT', ...options(trip) })).status, 404);
+  } finally { await Trip.deleteOne({ code: trip.code }); }
+});
+
+test('CRUD API rejects missing values, invalid dates, code changes, and unsafe descriptions', async () => {
+  const options = body => ({ headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  for (const body of [{}, { ...trips[0], code: 'BAD-DATE', start: 'not-a-date' },
+    { ...trips[0], code: 'BAD-HTML', description: '<script>alert(1)</script>' }]) {
+    assert.equal((await fetch(`${baseUrl}/api/trips`, { method: 'POST', ...options(body) })).status, 400);
+  }
+  const response = await fetch(`${baseUrl}/api/trips/${trips[0].code}`,
+    { method: 'PUT', ...options({ ...trips[0], code: 'CHANGED-CODE' }) });
+  assert.equal(response.status, 400);
+  assert.ok(await Trip.findOne({ code: trips[0].code }));
+});
+
 test('Express returns 404 for an unknown path', async () => {
   const response = await fetch(`${baseUrl}/missing-page`);
 

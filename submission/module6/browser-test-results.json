@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": [
+    "required fields",
+    "add through Angular",
+    "MongoDB persistence",
+    "public-site rendering",
+    "edit preload",
+    "update through Angular",
+    "refresh and deep-link route",
+    "cancel deletion",
+    "confirmed deletion",
+    "mobile layout",
+    "no browser script errors"
+  ]
+}

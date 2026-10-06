@@ -7,8 +7,8 @@ const Trip = require('./travlr');
 
 const tripsPath = path.join(__dirname, '..', '..', 'data', 'trips.json');
 
-async function seedTrips() {
-  const trips = JSON.parse(fs.readFileSync(tripsPath, 'utf8'));
+async function seedTrips(sourcePath = tripsPath) {
+  const trips = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
   if (!Array.isArray(trips) || trips.length === 0) {
     throw new Error('trips.json must contain a nonempty array');
   }
@@ -36,7 +36,7 @@ if (require.main === module) {
   (async () => {
     try {
       await connect();
-      const count = await seedTrips();
+      const count = await seedTrips(process.argv[2] ? path.resolve(process.argv[2]) : tripsPath);
       console.log(`Seeded ${count} trips in ${Trip.collection.name}.`);
     } catch (error) {
       console.error(error);

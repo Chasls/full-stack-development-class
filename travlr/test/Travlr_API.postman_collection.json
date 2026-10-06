@@ -1,72 +1,324 @@
 {
   "info": {
-    "name": "Travlr Module Five API",
+    "name": "Travlr Module Six CRUD API",
     "description": "Requests and tests for the Travlr trip REST endpoints.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "testCode",
+      "value": "POSTMAN-CRUD-TEST"
+    }
   ],
   "item": [
     {
       "name": "Get all trips",
       "request": {
         "method": "GET",
-        "header": [{ "key": "Accept", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
         "url": "{{baseUrl}}/api/trips"
       },
-      "event": [{
-        "listen": "test",
-        "script": {
-          "exec": [
-            "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
-            "pm.test('returns JSON', () => pm.response.to.be.json);",
-            "pm.test('returns a trip collection', () => {",
-            "  const trips = pm.response.json();",
-            "  pm.expect(trips).to.be.an('array').that.is.not.empty;",
-            "});"
-          ]
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('returns JSON', () => pm.response.to.be.json);",
+              "pm.test('returns a trip collection', () => {",
+              "  const trips = pm.response.json();",
+              "  pm.expect(trips).to.be.an('array').that.is.not.empty;",
+              "});"
+            ]
+          }
         }
-      }]
+      ]
     },
     {
       "name": "Get one trip by code",
       "request": {
         "method": "GET",
-        "header": [{ "key": "Accept", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
         "url": "{{baseUrl}}/api/trips/GALE-REEF"
       },
-      "event": [{
-        "listen": "test",
-        "script": {
-          "exec": [
-            "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
-            "pm.test('returns the requested trip', () => {",
-            "  const trip = pm.response.json();",
-            "  pm.expect(trip.code).to.eql('GALE-REEF');",
-            "});"
-          ]
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('returns the requested trip', () => {",
+              "  const trip = pm.response.json();",
+              "  pm.expect(trip.code).to.eql('GALE-REEF');",
+              "});"
+            ]
+          }
         }
-      }]
+      ]
     },
     {
       "name": "Missing trip returns 404",
       "request": {
         "method": "GET",
-        "header": [{ "key": "Accept", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
         "url": "{{baseUrl}}/api/trips/NO-SUCH-TRIP"
       },
-      "event": [{
-        "listen": "test",
-        "script": {
-          "exec": [
-            "pm.test('returns HTTP 404', () => pm.response.to.have.status(404));",
-            "pm.test('returns a JSON error', () => {",
-            "  pm.expect(pm.response.json()).to.deep.equal({ error: 'Trip not found' });",
-            "});"
-          ]
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 404', () => pm.response.to.have.status(404));",
+              "pm.test('returns a JSON error', () => {",
+              "  pm.expect(pm.response.json()).to.deep.equal({ error: 'Trip not found' });",
+              "});"
+            ]
+          }
         }
-      }]
+      ]
+    },
+    {
+      "name": "Add trip",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"{{testCode}}\",\n  \"name\": \"Postman Island Escape\",\n  \"length\": \"7 days\",\n  \"start\": \"2027-09-18T00:00:00.000Z\",\n  \"resort\": \"Travlr Island Resort\",\n  \"perPerson\": \"$1,399\",\n  \"image\": \"reef1.jpg\",\n  \"description\": \"<p>Seven days of snorkeling and island exploration.</p>\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 201', () => pm.response.to.have.status(201));",
+              "pm.test('added trip has the requested code', () => pm.expect(pm.response.json().code).to.eql(pm.collectionVariables.get('testCode')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject duplicate code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"{{testCode}}\",\n  \"name\": \"Postman Island Escape\",\n  \"length\": \"7 days\",\n  \"start\": \"2027-09-18T00:00:00.000Z\",\n  \"resort\": \"Travlr Island Resort\",\n  \"perPerson\": \"$1,399\",\n  \"image\": \"reef1.jpg\",\n  \"description\": \"<p>Seven days of snorkeling and island exploration.</p>\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 409', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read added trip",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/trips/{{testCode}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('added trip is stored', () => pm.expect(pm.response.json().name).to.eql('Postman Island Escape'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update trip",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/trips/{{testCode}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"{{testCode}}\",\n  \"name\": \"Updated Postman Escape\",\n  \"length\": \"7 days\",\n  \"start\": \"2027-09-18T00:00:00.000Z\",\n  \"resort\": \"Travlr Island Resort\",\n  \"perPerson\": \"$1,499\",\n  \"image\": \"reef1.jpg\",\n  \"description\": \"<p>Seven days of snorkeling and island exploration.</p>\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('updated values returned', () => pm.expect(pm.response.json().perPerson).to.eql('$1,499'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read updated trip",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/trips/{{testCode}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('update persisted', () => pm.expect(pm.response.json().name).to.eql('Updated Postman Escape'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete trip",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/trips/{{testCode}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deleted trip returns 404",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/trips/{{testCode}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 404', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject missing fields",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"INVALID\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

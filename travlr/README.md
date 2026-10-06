@@ -1,62 +1,49 @@
-# Travlr Getaways - Module Five
+﻿# Travlr Getaways - Module Six
 
-This Express application separates the customer-facing MVC website from the REST API. The `app_server` controller requests trip JSON from the `/api` endpoints, while the top-level `app_api` application uses Mongoose to retrieve trip records from MongoDB. The included `data/trips.json` file contains the three sample trip records.
+The customer website uses Express and Handlebars, the trip API uses Mongoose and MongoDB, and the Angular admin SPA uses reusable trip list/card components, reactive add/edit forms, and a shared HTTP data service. Bootstrap CSS supplies responsive cards and forms.
 
-## Requirements
+## Install and run
 
-- Node.js 18 or later
-- MongoDB running locally on `127.0.0.1:27017`
-
-To use another database, set `MONGODB_URI` to a MongoDB connection string before running the app, seed script, or inspection script.
-
-## Install, seed, and run
-
-From this `travlr` folder:
+Requirements: Node.js 22.12 or later and MongoDB on `127.0.0.1:27017`. Set `MONGODB_URI` to use a different database. Run these commands from the `travlr` folder (use `npm.cmd` on Windows when needed):
 
 ```text
-npm install
+npm ci
+npm --prefix app_admin ci
 npm run seed
-npm run inspect
+npm run seed:module6
+npm run build:admin
 npm start
 ```
 
-On Windows PowerShell, use `npm.cmd` in place of `npm` if script execution is blocked.
+Open `http://localhost:3000/admin/` to administer trips and `http://localhost:3000/travel` to view the public website. The production Angular build is included in the submission ZIP. The standard seed loads three original trips; `seed:module6` additionally restores the fourth trip shown in the screenshots. Neither seed removes other trips.
 
-Open `http://localhost:3000/travel` to view the travel page. The MVC controller populates this page with JSON requested from the REST API.
+For Angular development, keep Express running and use `npm --prefix app_admin start` in another terminal. Open `http://localhost:4200`. The development proxy forwards API, image, and public travel requests to Express.
 
-The REST endpoints are:
+## REST endpoints
 
-- `GET /api/trips` - returns the complete trip collection
-- `GET /api/trips/:tripCode` - returns the trip matching the requested code
+| Method | Endpoint | Behavior |
+| --- | --- | --- |
+| GET | `/api/trips` | Retrieve trips sorted by name |
+| GET | `/api/trips/:tripCode` | Retrieve one trip |
+| POST | `/api/trips` | Create a trip, returning 201 |
+| PUT | `/api/trips/:tripCode` | Replace editable trip values, returning 200 |
+| DELETE | `/api/trips/:tripCode` | Delete a trip, returning 204 |
 
-For example, `GET /api/trips/GALE-REEF` returns Gale Reef. A missing code returns HTTP 404 with a JSON error response. Unexpected database errors return HTTP 500 with a JSON error response.
+Every trip includes code, name, length, start, resort, perPerson, image, and description. Codes stay fixed after creation. Invalid input returns 400, duplicate codes return 409, missing trips return 404, and database failures return 500. Descriptions accept plain text or p, strong, em, and br tags without attributes.
 
-The seed command validates each entry in `trips.json` and inserts or updates trips by code. Running it again updates the same three records without creating duplicates. It does not remove other trips already in the collection.
-
-## Verify
-
-`npm run inspect` reads the MongoDB collection directly and checks every seed field, including that `start` is stored as a MongoDB date.
-
-`npm test` runs the automated application tests against an isolated temporary MongoDB database. The tests verify schema validation, seeding, collection and individual API requests, JSON response types, HTTP 404 handling, the MVC-to-API data flow, static assets, and database updates. The test database is removed after the run.
-
-Import `test/Travlr_API.postman_collection.json` into Postman while the application is running to execute the supplied collection, individual-trip, and missing-trip requests and their response tests.
-
-## Project layout
+## Verification
 
 ```text
-travlr/
-  app.js                                   Express application and route mounting
-  server.js                                Database connection and server startup
-  app_api/controllers/trips.js             REST endpoint controller methods
-  app_api/models/db.js                     Mongoose connection and error handling
-  app_api/models/travlr.js                 Trip schema and model
-  app_api/models/seed.js                   Sample-data loader
-  app_api/models/inspect.js                Direct database verification
-  app_api/routes/index.js                  REST API routes
-  app_server/controllers/travel.js         MVC controller that consumes the API
-  app_server/routes/index.js               Customer-facing MVC routes
-  data/trips.json                          Sample trip data
-  public/                                  Static website pages and assets
-  test/app.test.js                         Automated integration tests
-  test/Travlr_API.postman_collection.json  Postman requests and tests
+npm test
+npm run test:admin
 ```
+
+Backend tests use an isolated temporary MongoDB database and remove it afterward. They cover CRUD persistence, validation, duplicates, missing trips, customer page rendering, and static resources. Angular tests use mock trips and HTTP responses to verify cards, deletion confirmation, add/edit forms, error handling, and each HTTP method.
+
+Import `test/Travlr_API.postman_collection.json` into Postman, set `baseUrl`, and run the collection with Express running. The collection creates, updates, and deletes its own `POSTMAN-CRUD-TEST` record. It was verified using Newman's Postman collection runner (11 requests, 19 assertions).
+
+`node app_admin/e2e/browser-check.cjs` runs the Chrome browser workflow with Playwright against the running server. It requires a database without `ISLAND-ESCAPE`, adds the screenshot trip through Angular, updates it, verifies MongoDB and the public website, checks deletion using a temporary record, and captures screenshots. It intentionally retains `ISLAND-ESCAPE` afterward. Use a separate empty database and seed only the original trips before rerunning this demonstration. Chrome must be installed.
+
+## Submission evidence
+
+The three required screenshots show a fourth trip added through Angular, its loaded edit form, and the saved update with a success message. The trip changes from Island Escape at $1,399 to Island Escape Adventure at $1,499. Additional images show mobile cards and the public website. The `module6` branch contains the local implementation.

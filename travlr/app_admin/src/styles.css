@@ -1,0 +1,12 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+body { background: #f4f7f8; color: #253641; }
+.navbar { padding: 1rem 0; background: #183d46 !important; }
+.navbar-brand { font-weight: 700; letter-spacing: .08em; }
+.brand-detail { font-size: .65rem; letter-spacing: .12em; margin-left: .5rem; }
+.eyebrow { color: #44747a; letter-spacing: .14em; font-size: .7rem; font-weight: 700; margin-bottom: .5rem; }
+.btn-primary { --bs-btn-bg: #14777c; --bs-btn-border-color: #14777c; --bs-btn-hover-bg: #0e5a5e; --bs-btn-hover-border-color: #0e5a5e; }
+.trip-image { height: 175px; object-fit: cover; }
+.trip-code { font-size: .7rem; letter-spacing: .07em; color: #66808c; }
+.description p:last-child { margin-bottom: 0; }
+.form-shell { max-width: 760px; }
+.card { border-color: #dce5e8; }

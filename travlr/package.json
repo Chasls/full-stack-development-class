@@ -2,16 +2,19 @@
   "name": "travlr",
   "version": "1.0.0",
   "private": true,
-  "description": "Module Five Travlr Getaways website with a REST API",
+  "description": "Module Six Travlr Getaways full stack application",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "node --test",
     "seed": "node app_api/models/seed.js",
-    "inspect": "node app_api/models/inspect.js"
+    "inspect": "node app_api/models/inspect.js",
+    "seed:module6": "node app_api/models/seed.js data/module6-added-trip.json",
+    "build:admin": "npm --prefix app_admin run build",
+    "test:admin": "npm --prefix app_admin test -- --watch=false"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22.12"
   },
   "dependencies": {
     "express": "^5.2.1",
