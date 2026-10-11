@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { AuthenticationService } from '../services/authentication';
 import { RouterLink } from '@angular/router';
 import { Trip } from '../models/trip';
 import { TripDataService } from '../services/trip-data';
@@ -6,6 +7,7 @@ import { TripCardComponent } from '../trip-card/trip-card';
 
 @Component({ selector: 'app-trip-list', imports: [RouterLink, TripCardComponent], templateUrl: './trip-list.html' })
 export class TripListComponent {
+ readonly auth = inject(AuthenticationService);
   private readonly data = inject(TripDataService);
   trips = signal<Trip[]>([]);
   loading = signal(true);
@@ -24,7 +26,7 @@ export class TripListComponent {
   }
   deleteConfirmed() {
     const trip = this.pendingDelete();
-    if (!trip || this.deleting()) return;
+    if (!this.auth.isAdmin() || !trip || this.deleting()) return;
     this.deleting.set(true);
     this.data.deleteTrip(trip.code).subscribe({
       next: () => {

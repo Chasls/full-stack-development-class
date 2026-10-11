@@ -5,13 +5,14 @@ import { vi } from 'vitest';
 import { TripListComponent } from './trip-list';
 import { TripDataService } from '../services/trip-data';
 
+import { AuthenticationService } from '../services/authentication';
 const trip = { code: 'MOCK-REEF', name: 'Mock Reef', length: '5 days', start: '2027-09-10T00:00:00.000Z', resort: 'Lagoon Resort', perPerson: '$999', image: 'reef1.jpg', description: '<p>A mock trip.</p>' };
 describe('Trip components with mock data', () => {
   const service = { getTrips: vi.fn(), deleteTrip: vi.fn() };
   beforeEach(() => {
     service.getTrips.mockReturnValue(of([trip]));
     service.deleteTrip.mockReturnValue(of(undefined));
-    TestBed.configureTestingModule({ imports: [TripListComponent], providers: [provideRouter([]), { provide: TripDataService, useValue: service }] });
+    TestBed.configureTestingModule({ imports: [TripListComponent], providers: [provideRouter([]), {provide: AuthenticationService, useValue: {isAdmin: () => true}}, { provide: TripDataService, useValue: service }] });
   });
   it('renders mock trip cards and sends deletion only after confirmation', async () => {
     const fixture = TestBed.createComponent(TripListComponent); await fixture.whenStable();
@@ -23,6 +24,14 @@ describe('Trip components with mock data', () => {
     fixture.nativeElement.querySelector('section button').click(); await fixture.whenStable();
     expect(service.deleteTrip).toHaveBeenCalledWith('MOCK-REEF');
     expect(fixture.nativeElement.querySelector('app-trip-card')).toBeNull();
+  });
+  it('hides write controls while logged out', async () => {
+    TestBed.overrideProvider(AuthenticationService, {useValue: {isAdmin: () => false}});
+    const fixture = TestBed.createComponent(TripListComponent); await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('a[href="/trips/new"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-trip-card button')).toBeNull();
+    fixture.componentInstance.pendingDelete.set(trip); fixture.componentInstance.deleteConfirmed();
+    expect(fixture.nativeElement.textContent).toContain('Log in to manage trips');
   });
   it('renders a retry message when the API is unavailable', async () => {
     service.getTrips.mockReturnValue(throwError(() => new Error('Offline')));

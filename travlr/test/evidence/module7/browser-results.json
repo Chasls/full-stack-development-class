@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checks": [
+    "anonymous controls hidden",
+    "direct add route guarded",
+    "wrong password rejected",
+    "administrator login",
+    "authenticated create",
+    "edit and refresh persistence",
+    "public website reflects update",
+    "cancel deletion",
+    "authenticated delete",
+    "logout clears token",
+    "direct edit route guarded",
+    "mobile login layout",
+    "expired session hides controls",
+    "no browser script errors"
+  ]
+}

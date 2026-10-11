@@ -1,49 +1,62 @@
-﻿# Travlr Getaways - Module Six
+# Travlr Getaways - Module Seven
 
-The customer website uses Express and Handlebars, the trip API uses Mongoose and MongoDB, and the Angular admin SPA uses reusable trip list/card components, reactive add/edit forms, and a shared HTTP data service. Bootstrap CSS supplies responsive cards and forms.
+The Angular admin site now requires an administrator login to add, edit, or delete trips. Visitors can still view the trip listings. The API independently verifies authorization for every write.
 
-## Install and run
+## Setup
 
-Requirements: Node.js 22.12 or later and MongoDB on `127.0.0.1:27017`. Set `MONGODB_URI` to use a different database. Run these commands from the `travlr` folder (use `npm.cmd` on Windows when needed):
+Use Node.js 22.12 or later and MongoDB. From the travlr folder, run:
 
 ```text
 npm ci
 npm --prefix app_admin ci
 npm run seed
-npm run seed:module6
 npm run build:admin
 npm start
 ```
 
-Open `http://localhost:3000/admin/` to administer trips and `http://localhost:3000/travel` to view the public website. The production Angular build is included in the submission ZIP. The standard seed loads three original trips; `seed:module6` additionally restores the fourth trip shown in the screenshots. Neither seed removes other trips.
+Open http://localhost:3000/admin/ or http://localhost:3000/travel. The ZIP includes the compiled admin site. MONGODB_URI defaults to mongodb://127.0.0.1:27017/travlr.
 
-For Angular development, keep Express running and use `npm --prefix app_admin start` in another terminal. Open `http://localhost:4200`. The development proxy forwards API, image, and public travel requests to Express.
+Set ADMIN_EMAIL and ADMIN_PASSWORD in the terminal environment, then run `npm run create:admin`. Choose your own email and password of 12 to 128 characters. ADMIN_NAME is optional. The command refuses to overwrite or promote an existing account. Clear the password variable afterward. Public registration always creates regular users.
 
-## REST endpoints
+Set JWT_SECRET to a private random value of at least 32 bytes for a persistent signing key. Production requires this setting. Development generates a temporary key when it is omitted, so restarting invalidates tokens.
 
-| Method | Endpoint | Behavior |
+## Security
+
+Passwords are stored as scrypt hashes with separate random salts. Tokens expire after one hour. The API validates their signature, expiration, issuer, and audience, then checks the current database account and administrator role. Deleting or demoting an account removes its write access immediately.
+
+Angular uses session storage, guarded add/edit routes, conditional CRUD controls, and an HTTP interceptor that attaches the bearer token to trip writes. Logout clears the token. Invalid sessions redirect to login, and expiration hides administrative controls.
+
+| Method | Endpoint | Access |
 | --- | --- | --- |
-| GET | `/api/trips` | Retrieve trips sorted by name |
-| GET | `/api/trips/:tripCode` | Retrieve one trip |
-| POST | `/api/trips` | Create a trip, returning 201 |
-| PUT | `/api/trips/:tripCode` | Replace editable trip values, returning 200 |
-| DELETE | `/api/trips/:tripCode` | Delete a trip, returning 204 |
+| POST | /api/register | Public; regular-user registration |
+| POST | /api/login | Public; credential validation |
+| GET | /api/trips | Public |
+| GET | /api/trips/:tripCode | Public |
+| POST | /api/trips | Administrator |
+| PUT | /api/trips/:tripCode | Administrator |
+| DELETE | /api/trips/:tripCode | Administrator |
 
-Every trip includes code, name, length, start, resort, perPerson, image, and description. Codes stay fixed after creation. Invalid input returns 400, duplicate codes return 409, missing trips return 404, and database failures return 500. Descriptions accept plain text or p, strong, em, and br tags without attributes.
+Missing or invalid tokens return 401. Regular users receive 403 on trip writes. Existing trip validation remains in place.
 
-## Verification
+## Tests
 
 ```text
 npm test
 npm run test:admin
+node app_admin/e2e/module7-check.cjs
 ```
 
-Backend tests use an isolated temporary MongoDB database and remove it afterward. They cover CRUD persistence, validation, duplicates, missing trips, customer page rendering, and static resources. Angular tests use mock trips and HTTP responses to verify cards, deletion confirmation, add/edit forms, error handling, and each HTTP method.
+All 20 backend tests and 14 Angular tests passed. Newman ran the Postman collection successfully: 23 requests and 32 assertions. The Chrome workflow passed login, CRUD, logout, guarded URLs, expired sessions, and mobile layout checks.
 
-Import `test/Travlr_API.postman_collection.json` into Postman, set `baseUrl`, and run the collection with Express running. The collection creates, updates, and deletes its own `POSTMAN-CRUD-TEST` record. It was verified using Newman's Postman collection runner (11 requests, 19 assertions).
+Backend tests use temporary MongoDB databases. The browser script starts a test server on port 3107, runs Newman, and checks the Angular workflow in Chrome. It removes its temporary database and stops the server afterward. Chrome is required. Newman is obtained through npx when needed.
 
-`node app_admin/e2e/browser-check.cjs` runs the Chrome browser workflow with Playwright against the running server. It requires a database without `ISLAND-ESCAPE`, adds the screenshot trip through Angular, updates it, verifies MongoDB and the public website, checks deletion using a temporary record, and captures screenshots. It intentionally retains `ISLAND-ESCAPE` afterward. Use a separate empty database and seed only the original trips before rerunning this demonstration. Chrome must be installed.
+Import test/Travlr_API.postman_collection.json into Postman and set baseUrl, adminEmail, and adminPassword to match your test server. Run the requests in order. The collection creates a regular user and removes its temporary trip. Run against a test database, since the mock user remains on a persistent database.
 
-## Submission evidence
+Screenshots and machine-readable results are in test/evidence/module7. Postman results were generated with Newman, the Postman collection runner.
 
-The three required screenshots show a fourth trip added through Angular, its loaded edit form, and the saved update with a success message. The trip changes from Island Escape at $1,399 to Island Escape Adventure at $1,499. Additional images show mobile cards and the public website. The `module6` branch contains the local implementation.
+## References and deployment
+
+- [Node.js crypto documentation](https://nodejs.org/api/crypto.html)
+- [jsonwebtoken documentation](https://github.com/auth0/node-jsonwebtoken)
+
+The assignment's single authentication layer is implemented. A production deployment should add HTTPS, login rate limiting, and managed secrets. Client logout removes the local token; a copied token remains valid until expiry unless its account is removed or demoted.

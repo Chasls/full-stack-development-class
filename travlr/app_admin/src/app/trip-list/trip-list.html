@@ -1,17 +1,18 @@
 <div class="d-flex justify-content-between align-items-center mb-4 gap-3">
   <div><p class="eyebrow">TRIP MANAGEMENT</p><h1 class="h2 mb-1">Your getaways</h1><p class="text-secondary mb-0">Manage trips displayed on the Travlr website.</p></div>
-  <a class="btn btn-primary" routerLink="/trips/new">Add trip</a>
+  @if (auth.isAdmin()) { <a class="btn btn-primary" routerLink="/trips/new">Add trip</a> }
+@else { <a class="btn btn-primary" routerLink="/login">Log in to manage trips</a> }
 </div>
 @if (message()) { <div class="alert alert-success" role="status">{{ message() }}</div> }
 @if (error()) { <div class="alert alert-danger" role="alert">{{ error() }} <button class="btn btn-sm btn-outline-danger ms-2" (click)="load()">Retry</button></div> }
-@if (pendingDelete(); as trip) {
+@if (auth.isAdmin() && pendingDelete(); as trip) {
   <section class="alert alert-warning" aria-label="Confirm deletion">
     <p>Delete <strong>{{ trip.name }}</strong>? This removes the trip from the public website.</p>
-    <button class="btn btn-danger me-2" [disabled]="deleting()" (click)="deleteConfirmed()">{{ deleting() ? 'Deleting…' : 'Confirm delete' }}</button>
+    <button class="btn btn-danger me-2" [disabled]="deleting()" (click)="deleteConfirmed()">{{ deleting() ? 'DeletingÃ¢â‚¬Â¦' : 'Confirm delete' }}</button>
     <button class="btn btn-outline-secondary" [disabled]="deleting()" (click)="pendingDelete.set(null)">Cancel</button>
   </section>
 }
-@if (loading()) { <p role="status">Loading trips…</p> }
+@if (loading()) { <p role="status">Loading tripsÃ¢â‚¬Â¦</p> }
 @else {
   <p class="small text-secondary">{{ trips().length }} trips</p>
   <div class="row g-4">

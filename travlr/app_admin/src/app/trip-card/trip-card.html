@@ -10,10 +10,10 @@
     <div class="description small mb-3" [innerHTML]="trip().description"></div>
     <div class="mt-auto">
       <p class="fw-semibold">{{ trip().perPerson }} <span class="text-secondary fw-normal small">per person</span></p>
-      <div class="d-flex gap-2">
+      @if (auth.isAdmin()) { <div class="d-flex gap-2">
         <a class="btn btn-primary flex-grow-1" [routerLink]="['/trips', trip().code, 'edit']">Edit trip</a>
         <button class="btn btn-outline-danger" [disabled]="deleting()" (click)="remove.emit(trip())">Delete</button>
-      </div>
+      </div> }
     </div>
   </div>
 </article>

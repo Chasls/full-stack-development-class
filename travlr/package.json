@@ -2,7 +2,7 @@
   "name": "travlr",
   "version": "1.0.0",
   "private": true,
-  "description": "Module Six Travlr Getaways full stack application",
+  "description": "Module Seven Travlr Getaways secure full stack application",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -11,7 +11,8 @@
     "inspect": "node app_api/models/inspect.js",
     "seed:module6": "node app_api/models/seed.js data/module6-added-trip.json",
     "build:admin": "npm --prefix app_admin run build",
-    "test:admin": "npm --prefix app_admin test -- --watch=false"
+    "test:admin": "npm --prefix app_admin test -- --watch=false",
+    "create:admin": "node app_api/models/create-admin.js"
   },
   "engines": {
     "node": ">=22.12"
@@ -19,6 +20,10 @@
   "dependencies": {
     "express": "^5.2.1",
     "hbs": "^4.2.0",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.24.4"
+  },
+  "overrides": {
+    "handlebars": "^4.7.10"
   }
 }
