@@ -1,0 +1,29 @@
+CS 465 Module Eight Journal
+Chas
+
+GitHub repository with the completed application:
+https://github.com/Chasls/full-stack-development-class/tree/final-project
+
+Architecture
+
+The project uses two different approaches to frontend development. The customer website started with static HTML and CSS. Express routes and controllers now retrieve trip data and use Handlebars templates to render complete HTML pages on the server. JavaScript adds customer interactions such as account creation, booking, and itinerary updates. The administrator interface uses Angular to run a single-page application in the browser. Its components, reactive forms, and routing let administrators move between trip cards and forms without loading a new HTML document for each action.
+
+Both interfaces use the same Express API, but they handle presentation differently. The public website gets its trip listing as rendered HTML, while Angular receives JSON and updates its own views. The SPA gives administrators immediate validation and save feedback, although it requires more frontend code and a larger initial JavaScript download. MongoDB fits the backend because trips, users, and reservations can be stored as documents with fields that map naturally to the application's data. Mongoose adds schemas and validation so those documents still follow consistent rules. The database also provides persistent storage that both interfaces share.
+
+Functionality
+
+JavaScript is a programming language that runs application logic. JSON is a text format for exchanging data; it does not contain executable functions. In this project, JSON connects the frontend and backend through API requests and responses. Angular sends trip values as JSON when saving a form, and Express returns the saved record in the same format. The public travel controller also retrieves a JSON trip array and passes it to Handlebars. A departure date travels as a string in JSON even though Mongoose stores it as a database date.
+
+Several refactoring steps improved the project. Moving repeated HTML into Handlebars partials made the customer header and footer easier to maintain. Replacing hard-coded trip content with templates and database records allowed saved changes to appear on the public website. TripDataService centralized Angular's HTTP requests, and the shared trip form handles both adding and editing. TripCardComponent gives every trip the same layout and controls. Reusable components reduce duplicated code, make behavior more consistent, and allow one change to improve every place that uses the component. Authentication middleware and the HTTP interceptor also keep security logic from being repeated in each individual trip operation.
+
+Testing
+
+An endpoint identifies an API resource, and the HTTP method describes the operation on that resource. For example, GET /api/trips retrieves the collection, POST /api/trips creates a trip, and PUT /api/trips/:tripCode updates an existing trip. Testing needs to check the returned status and data, then confirm that the database actually stored the change. A successful-looking screen alone does not prove that an update persisted. The project checks API responses, MongoDB records, page refreshes, and the public website after edits.
+
+Security adds another set of cases to test. A valid administrator token should allow trip changes, while missing, expired, or altered tokens should be rejected. A regular customer account should not gain administrator access just because it has logged in. Customers also must not be able to retrieve or cancel another customer's reservations. The final checks included backend integration tests, Angular tests with mock data, a Postman collection run through Newman, and Chrome browser workflows. All 23 backend tests, 16 Angular tests, and 45 Postman assertions across 31 requests passed. Testing successful requests and expected failures helped verify both the application behavior and its access rules.
+
+Reflection
+
+This course helped me connect the parts of a web application instead of looking at the frontend, API, and database as separate pieces. The completed project gives me something concrete to show in a portfolio: a public website, an Angular admin interface, persistent data, and authenticated access. It also gives me a clearer way to explain how a request moves through the application and where to look when something fails.
+
+The skills developed through this project include organizing an Express application, building Angular components and forms, designing Mongoose schemas, working with REST endpoints, and testing authorization. Using Git branches and writing a software design document also made the project easier to track and explain. These are useful skills for software development roles because they show more than the ability to make a page look correct. They show how to connect an interface to stored data, protect access, and verify the result. Areas to keep developing include deployment, handling simultaneous edits, and improving performance as the amount of data grows.
