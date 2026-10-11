@@ -328,3 +328,47 @@ test('Deleted and demoted administrators lose write access', async () => {
  await User.deleteOne({_id: user._id});
  assert.equal((await fetch(`${baseUrl}/api/trips/${trips[0].code}`, options)).status, 401);
 });
+
+
+test('Customer search filters trip location and price without changing records', async () => {
+ const result = await fetch(`${baseUrl}/travel?location=Gale&maxPrice=1300`);
+ assert.equal(result.status, 200); const html=await result.text(); assert.match(html, /Gale Reef/); assert.doesNotMatch(html, /Dawson.*Reef/);
+ const empty = await fetch(`${baseUrl}/travel?maxPrice=1`); assert.match(await empty.text(), /No trips match/);
+ assert.equal((await fetch(`${baseUrl}/travel?maxPrice=invalid`)).status, 400);
+});
+
+test('Customer reservations persist, isolate ownership, and support cancellation', async () => {
+ const Reservation = require('../app_api/models/reservation');
+ const user = new User({name: 'Booking Customer', email: 'booking@example.test'}); await user.setPassword('Customer-password-2026!'); await user.save();
+ const other = new User({name: 'Other Customer', email: 'other@example.test'}); await other.setPassword('Customer-password-2026!'); await other.save();
+ const headers={'Authorization': `Bearer ${tokenFor(user)}`, 'Content-Type': 'application/json'};
+ const otherHeaders={'Authorization': `Bearer ${tokenFor(other)}`};
+ assert.equal((await fetch(`${baseUrl}/api/reservations`)).status, 401);
+ assert.equal((await fetch(`${baseUrl}/api/reservations`, {method:'POST', headers, body:JSON.stringify({tripCode:'MISSING'})})).status, 404);
+ const options={method:'POST', headers, body:JSON.stringify({tripCode:trips[0].code, user:other._id})};
+ const response=await fetch(`${baseUrl}/api/reservations`, options); assert.equal(response.status, 201); const reservation=await response.json();
+ assert.equal(reservation.name, trips[0].name); assert.equal(String((await Reservation.findById(reservation._id)).user), String(user._id));
+ assert.equal((await fetch(`${baseUrl}/api/reservations`, options)).status, 409);
+ assert.equal((await (await fetch(`${baseUrl}/api/reservations`, {headers})).json()).length, 1);
+ assert.deepEqual(await (await fetch(`${baseUrl}/api/reservations`, {headers:otherHeaders})).json(), []);
+ assert.equal((await fetch(`${baseUrl}/api/reservations/${reservation._id}`, {method:'DELETE', headers:otherHeaders})).status, 404);
+ const cancelled=await fetch(`${baseUrl}/api/reservations/${reservation._id}`, {method:'DELETE', headers}); assert.equal(cancelled.status,200); assert.equal((await cancelled.json()).status, 'cancelled');
+});
+
+test('Administrator customer management validates updates and never exposes password hashes', async () => {
+ const headers={Authorization:`Bearer ${adminToken}`, 'Content-Type':'application/json'};
+ const users=await (await fetch(`${baseUrl}/api/users`, {headers})).json();
+ assert.ok(users.length > 0); assert.ok(users.every(user => !user.hash && !user.salt && user.role === 'user'));
+ assert.equal((await fetch(`${baseUrl}/api/users`)).status,401);
+ const user=await User.findOne({email:'booking@example.test'}); const userToken=tokenFor(user);
+ assert.equal((await fetch(`${baseUrl}/api/users`, {headers:{Authorization:`Bearer ${userToken}`}})).status,403);
+ const url=`${baseUrl}/api/users/${user._id}`;
+ assert.equal((await fetch(url, {method:'PUT', headers, body:JSON.stringify({name:'',email:'invalid'})})).status,400);
+ const update=await fetch(url,{method:'PUT',headers,body:JSON.stringify({name:'Updated Customer',email:'updated@example.test',role:'admin'})});
+ assert.equal(update.status,200); assert.equal((await update.json()).role,'user');
+ assert.equal((await fetch(url,{method:'DELETE',headers})).status,204);
+ assert.equal((await fetch(`${baseUrl}/api/reservations`,{headers:{Authorization:`Bearer ${userToken}`}})).status,401);
+ const Reservation=require('../app_api/models/reservation'); assert.equal(await Reservation.countDocuments({user:user._id}),0);
+ const admin=await User.findOne({email:'admin@example.test'});
+ assert.equal((await fetch(`${baseUrl}/api/users/${admin._id}`,{method:'DELETE',headers})).status,404);
+});

@@ -1,0 +1,91 @@
+{
+  "backend": {
+    "tests": 23,
+    "passed": 23,
+    "failed": 0
+  },
+  "angular": {
+    "tests": 16,
+    "passed": 16,
+    "failed": 0
+  },
+  "postman": {
+    "iterations": {
+      "total": 1,
+      "pending": 0,
+      "failed": 0
+    },
+    "items": {
+      "total": 31,
+      "pending": 0,
+      "failed": 0
+    },
+    "scripts": {
+      "total": 62,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequests": {
+      "total": 31,
+      "pending": 0,
+      "failed": 0
+    },
+    "requests": {
+      "total": 31,
+      "pending": 0,
+      "failed": 0
+    },
+    "tests": {
+      "total": 31,
+      "pending": 0,
+      "failed": 0
+    },
+    "assertions": {
+      "total": 45,
+      "pending": 0,
+      "failed": 0
+    },
+    "testScripts": {
+      "total": 31,
+      "pending": 0,
+      "failed": 0
+    },
+    "prerequestScripts": {
+      "total": 31,
+      "pending": 0,
+      "failed": 0
+    }
+  },
+  "browser": {
+    "passed": true,
+    "checks": [
+      "anonymous controls hidden",
+      "direct add route guarded",
+      "wrong password rejected",
+      "administrator login",
+      "authenticated create",
+      "edit and refresh persistence",
+      "public website reflects update",
+      "cancel deletion",
+      "authenticated delete",
+      "logout clears token",
+      "direct edit route guarded",
+      "mobile login layout",
+      "expired session hides controls",
+      "customer registration and login",
+      "location and price search",
+      "customer booking and itinerary persistence",
+      "reservation cancellation",
+      "admin customer edit and deletion",
+      "no browser script errors"
+    ]
+  },
+  "dependency_audit": {
+    "backend_vulnerabilities": 0
+  },
+  "sdd": {
+    "pages": 15,
+    "rendered_and_visually_reviewed": true,
+    "template_placeholders": 0
+  }
+}

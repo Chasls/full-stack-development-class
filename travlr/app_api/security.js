@@ -6,7 +6,7 @@ if (!configured && process.env.NODE_ENV === 'production') throw new Error('Set J
 const secret = configured || require('node:crypto').randomBytes(48).toString('hex');
 const options = {algorithm: 'HS256', issuer: 'travlr', audience: 'travlr-admin', expiresIn: '1h'};
 const tokenFor = user => jwt.sign({name: user.name, email: user.email, role: user.role}, secret, {...options, subject: String(user._id)});
-async function requireAdmin(req, res, next) {
+async function requireUser(req, res, next) {
  const match = /^Bearer ([^\s]+)$/i.exec(req.get('Authorization') || '');
  if (!match) return res.status(401).json({error: 'Login required'});
  let payload;
@@ -16,8 +16,13 @@ async function requireAdmin(req, res, next) {
  try {
   const user = await User.findById(payload.sub);
   if (!user) return res.status(401).json({error: 'User no longer exists'});
-  if (user.role !== 'admin') return res.status(403).json({error: 'Administrator access required'});
   req.user = user; next();
  } catch { res.status(500).json({error: 'Authentication unavailable'}); }
 }
-module.exports = {tokenFor, requireAdmin};
+function requireAdmin(req, res, next) {
+ requireUser(req, res, () => {
+  if (req.user.role !== 'admin') return res.status(403).json({error: 'Administrator access required'});
+  next();
+ });
+}
+module.exports = {tokenFor, requireUser, requireAdmin};

@@ -1,2 +1,2 @@
 'use strict';
-require('./module7-check.cjs');
+require('./final-project-check.cjs');

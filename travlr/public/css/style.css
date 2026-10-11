@@ -543,3 +543,14 @@ hr {
 #connect a.googleplus:hover {
 	background-position: 0 -197px;
 }
+
+/* Account, search, and itinerary controls follow the customer website palette. */
+.customer-form { margin: 18px 0 28px; }
+.customer-form label { display: block; margin: 12px 0; font-weight: bold; }
+.customer-form input { display: block; width: min(100%, 380px); padding: 9px; margin-top: 6px; box-sizing: border-box; border: 1px solid #8d9fa0; }
+.customer-form button, .book-trip, .reservation button, #customer-logout { padding: 9px 16px; background: #167780; color: white; border: 0; cursor: pointer; }
+.customer-form button:disabled, .book-trip:disabled, .reservation button:disabled { opacity: .6; cursor: wait; }
+.reservation { border-bottom: 1px solid #c5d4d5; padding: 15px 0; }
+#customer-status { font-weight: bold; }
+#navigation ul { display: flex; flex-wrap: wrap; height: auto; }
+#navigation { height: auto; min-height: 60px; }
