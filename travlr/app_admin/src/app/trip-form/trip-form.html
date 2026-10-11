@@ -1,0 +1,23 @@
+<div class="form-shell mx-auto">
+  <a class="text-decoration-none" routerLink="/">← Back to trips</a>
+  <p class="eyebrow mt-4">TRIP MANAGEMENT</p><h1 class="h2">{{ editing ? 'Edit trip' : 'Add trip' }}</h1>
+  <p class="text-secondary">{{ editing ? 'Update trip details and save your changes.' : 'Create a getaway for the Travlr public website.' }}</p>
+  @if (error()) { <div class="alert alert-danger" role="alert">{{ error() }}</div> }
+  @if (loading() && !error()) { <p role="status">Loading trip…</p> }
+  @if (!loading()) {
+    <form class="card shadow-sm p-4" [formGroup]="form" (ngSubmit)="save()">
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label" for="code">Trip code</label><input id="code" class="form-control" formControlName="code" [readOnly]="editing" placeholder="ISLAND-ESCAPE"><div class="form-text">Letters, numbers, and hyphens. The code stays fixed after creation.</div></div>
+        <div class="col-md-6"><label class="form-label" for="name">Trip name</label><input id="name" class="form-control" formControlName="name"></div>
+        <div class="col-md-6"><label class="form-label" for="length">Length</label><input id="length" class="form-control" formControlName="length" placeholder="7 days"></div>
+        <div class="col-md-6"><label class="form-label" for="start">Departure date</label><input id="start" type="date" class="form-control" formControlName="start"></div>
+        <div class="col-md-6"><label class="form-label" for="resort">Resort</label><input id="resort" class="form-control" formControlName="resort"></div>
+        <div class="col-md-6"><label class="form-label" for="perPerson">Price per person</label><input id="perPerson" class="form-control" formControlName="perPerson" placeholder="$1,299"></div>
+        <div class="col-12"><label class="form-label" for="image">Trip image</label><select id="image" class="form-select" formControlName="image"><option value="reef1.jpg">Gale Reef (reef1.jpg)</option><option value="reef2.jpg">Dawson’s Reef (reef2.jpg)</option><option value="reef3.jpg">Claire’s Reef (reef3.jpg)</option></select></div>
+        <div class="col-12"><label class="form-label" for="description">Description</label><textarea id="description" class="form-control" rows="4" formControlName="description"></textarea><div class="form-text">Plain text or simple HTML: p, strong, em, and br tags.</div></div>
+      </div>
+      @if (form.touched && form.invalid) { <p class="text-danger mt-3 mb-0" role="alert">Complete every field and use a valid trip code.</p> }
+      <div class="d-flex gap-2 mt-4"><button class="btn btn-primary" type="submit" [disabled]="saving()">{{ saving() ? 'Saving…' : (editing ? 'Save changes' : 'Add trip') }}</button><a class="btn btn-outline-secondary" routerLink="/">Cancel</a></div>
+    </form>
+  }
+</div>

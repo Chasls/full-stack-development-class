@@ -1,62 +1,62 @@
-# Travlr Getaways - Module Five
+# Travlr Getaways - Module Seven
 
-This Express application separates the customer-facing MVC website from the REST API. The `app_server` controller requests trip JSON from the `/api` endpoints, while the top-level `app_api` application uses Mongoose to retrieve trip records from MongoDB. The included `data/trips.json` file contains the three sample trip records.
+The Angular admin site now requires an administrator login to add, edit, or delete trips. Visitors can still view the trip listings. The API independently verifies authorization for every write.
 
-## Requirements
+## Setup
 
-- Node.js 18 or later
-- MongoDB running locally on `127.0.0.1:27017`
-
-To use another database, set `MONGODB_URI` to a MongoDB connection string before running the app, seed script, or inspection script.
-
-## Install, seed, and run
-
-From this `travlr` folder:
+Use Node.js 22.12 or later and MongoDB. From the travlr folder, run:
 
 ```text
-npm install
+npm ci
+npm --prefix app_admin ci
 npm run seed
-npm run inspect
+npm run build:admin
 npm start
 ```
 
-On Windows PowerShell, use `npm.cmd` in place of `npm` if script execution is blocked.
+Open http://localhost:3000/admin/ or http://localhost:3000/travel. The ZIP includes the compiled admin site. MONGODB_URI defaults to mongodb://127.0.0.1:27017/travlr.
 
-Open `http://localhost:3000/travel` to view the travel page. The MVC controller populates this page with JSON requested from the REST API.
+Set ADMIN_EMAIL and ADMIN_PASSWORD in the terminal environment, then run `npm run create:admin`. Choose your own email and password of 12 to 128 characters. ADMIN_NAME is optional. The command refuses to overwrite or promote an existing account. Clear the password variable afterward. Public registration always creates regular users.
 
-The REST endpoints are:
+Set JWT_SECRET to a private random value of at least 32 bytes for a persistent signing key. Production requires this setting. Development generates a temporary key when it is omitted, so restarting invalidates tokens.
 
-- `GET /api/trips` - returns the complete trip collection
-- `GET /api/trips/:tripCode` - returns the trip matching the requested code
+## Security
 
-For example, `GET /api/trips/GALE-REEF` returns Gale Reef. A missing code returns HTTP 404 with a JSON error response. Unexpected database errors return HTTP 500 with a JSON error response.
+Passwords are stored as scrypt hashes with separate random salts. Tokens expire after one hour. The API validates their signature, expiration, issuer, and audience, then checks the current database account and administrator role. Deleting or demoting an account removes its write access immediately.
 
-The seed command validates each entry in `trips.json` and inserts or updates trips by code. Running it again updates the same three records without creating duplicates. It does not remove other trips already in the collection.
+Angular uses session storage, guarded add/edit routes, conditional CRUD controls, and an HTTP interceptor that attaches the bearer token to trip writes. Logout clears the token. Invalid sessions redirect to login, and expiration hides administrative controls.
 
-## Verify
+| Method | Endpoint | Access |
+| --- | --- | --- |
+| POST | /api/register | Public; regular-user registration |
+| POST | /api/login | Public; credential validation |
+| GET | /api/trips | Public |
+| GET | /api/trips/:tripCode | Public |
+| POST | /api/trips | Administrator |
+| PUT | /api/trips/:tripCode | Administrator |
+| DELETE | /api/trips/:tripCode | Administrator |
 
-`npm run inspect` reads the MongoDB collection directly and checks every seed field, including that `start` is stored as a MongoDB date.
+Missing or invalid tokens return 401. Regular users receive 403 on trip writes. Existing trip validation remains in place.
 
-`npm test` runs the automated application tests against an isolated temporary MongoDB database. The tests verify schema validation, seeding, collection and individual API requests, JSON response types, HTTP 404 handling, the MVC-to-API data flow, static assets, and database updates. The test database is removed after the run.
-
-Import `test/Travlr_API.postman_collection.json` into Postman while the application is running to execute the supplied collection, individual-trip, and missing-trip requests and their response tests.
-
-## Project layout
+## Tests
 
 ```text
-travlr/
-  app.js                                   Express application and route mounting
-  server.js                                Database connection and server startup
-  app_api/controllers/trips.js             REST endpoint controller methods
-  app_api/models/db.js                     Mongoose connection and error handling
-  app_api/models/travlr.js                 Trip schema and model
-  app_api/models/seed.js                   Sample-data loader
-  app_api/models/inspect.js                Direct database verification
-  app_api/routes/index.js                  REST API routes
-  app_server/controllers/travel.js         MVC controller that consumes the API
-  app_server/routes/index.js               Customer-facing MVC routes
-  data/trips.json                          Sample trip data
-  public/                                  Static website pages and assets
-  test/app.test.js                         Automated integration tests
-  test/Travlr_API.postman_collection.json  Postman requests and tests
+npm test
+npm run test:admin
+node app_admin/e2e/module7-check.cjs
 ```
+
+All 20 backend tests and 14 Angular tests passed. Newman ran the Postman collection successfully: 23 requests and 32 assertions. The Chrome workflow passed login, CRUD, logout, guarded URLs, expired sessions, and mobile layout checks.
+
+Backend tests use temporary MongoDB databases. The browser script starts a test server on port 3107, runs Newman, and checks the Angular workflow in Chrome. It removes its temporary database and stops the server afterward. Chrome is required. Newman is obtained through npx when needed.
+
+Import test/Travlr_API.postman_collection.json into Postman and set baseUrl, adminEmail, and adminPassword to match your test server. Run the requests in order. The collection creates a regular user and removes its temporary trip. Run against a test database, since the mock user remains on a persistent database.
+
+Screenshots and machine-readable results are in test/evidence/module7. Postman results were generated with Newman, the Postman collection runner.
+
+## References and deployment
+
+- [Node.js crypto documentation](https://nodejs.org/api/crypto.html)
+- [jsonwebtoken documentation](https://github.com/auth0/node-jsonwebtoken)
+
+The assignment's single authentication layer is implemented. A production deployment should add HTTPS, login rate limiting, and managed secrets. Client logout removes the local token; a copied token remains valid until expiry unless its account is removed or demoted.

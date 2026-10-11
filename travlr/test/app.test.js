@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const { after, before, test } = require('node:test');
 const fs = require('node:fs');
 const path = require('node:path');
+process.env.JWT_SECRET = 'module-seven-isolated-test-secret-2026';
 const app = require('../app');
 const { connect, disconnect, mongoose } = require('../app_api/models/db');
 const { seedTrips } = require('../app_api/models/seed');
@@ -12,6 +13,9 @@ const Trip = require('../app_api/models/travlr');
 const tripsPath = path.join(__dirname, '..', 'data', 'trips.json');
 const trips = JSON.parse(fs.readFileSync(tripsPath, 'utf8'));
 
+const User = require('../app_api/models/user');
+const {tokenFor} = require('../app_api/security');
+let adminToken;
 let baseUrl;
 let server;
 const pages = [
@@ -27,6 +31,8 @@ const pages = [
 before(async () => {
   await connect(`mongodb://127.0.0.1:27017/travlr_test_${process.pid}_${Date.now()}`);
   await seedTrips();
+  const admin = new User({name: 'Mock Admin', email: 'admin@example.test', role: 'admin'});
+  await admin.setPassword('Mock-password-2026!'); await admin.save(); adminToken = tokenFor(admin);
 
   await new Promise((resolve) => {
     server = app.listen(0, '127.0.0.1', resolve);
@@ -225,9 +231,100 @@ test('Express exposes a diagnostic endpoint', async () => {
   });
 });
 
+test('CRUD API persists additions and updates, renders them publicly, and deletes them', async () => {
+  const trip = { ...trips[0], code: 'CRUD-TEST', name: 'CRUD Test Getaway' };
+  const url = `${baseUrl}/api/trips/${trip.code}`;
+  const options = body => ({ headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` }, body: JSON.stringify(body) });
+  try {
+    const added = await fetch(`${baseUrl}/api/trips`, { method: 'POST', ...options(trip) });
+    assert.equal(added.status, 201);
+    assert.equal((await added.json()).name, trip.name);
+    assert.ok(await Trip.findOne({ code: trip.code }));
+    assert.match(await (await fetch(`${baseUrl}/travel`)).text(), /CRUD Test Getaway/);
+    assert.equal((await fetch(`${baseUrl}/api/trips`, { method: 'POST', ...options(trip) })).status, 409);
+    trip.name = 'Updated CRUD Getaway';
+    const updated = await fetch(url, { method: 'PUT', ...options(trip) });
+    assert.equal(updated.status, 200);
+    assert.equal((await updated.json()).name, trip.name);
+    assert.equal((await Trip.findOne({ code: trip.code })).name, trip.name);
+    assert.match(await (await fetch(`${baseUrl}/travel`)).text(), /Updated CRUD Getaway/);
+    assert.equal((await fetch(url, { method: 'DELETE', headers: { Authorization: `Bearer ${adminToken}` } })).status, 204);
+    assert.equal(await Trip.findOne({ code: trip.code }), null);
+    assert.equal((await fetch(url)).status, 404);
+    assert.equal((await fetch(url, { method: 'DELETE', headers: { Authorization: `Bearer ${adminToken}` } })).status, 404);
+    assert.equal((await fetch(url, { method: 'PUT', ...options(trip) })).status, 404);
+  } finally { await Trip.deleteOne({ code: trip.code }); }
+});
+
+test('CRUD API rejects missing values, invalid dates, code changes, and unsafe descriptions', async () => {
+  const options = body => ({ headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` }, body: JSON.stringify(body) });
+  for (const body of [{}, { ...trips[0], code: 'BAD-DATE', start: 'not-a-date' },
+    { ...trips[0], code: 'BAD-HTML', description: '<script>alert(1)</script>' }]) {
+    assert.equal((await fetch(`${baseUrl}/api/trips`, { method: 'POST', ...options(body) })).status, 400);
+  }
+  const response = await fetch(`${baseUrl}/api/trips/${trips[0].code}`,
+    { method: 'PUT', ...options({ ...trips[0], code: 'CHANGED-CODE' }) });
+  assert.equal(response.status, 400);
+  assert.ok(await Trip.findOne({ code: trips[0].code }));
+});
+
 test('Express returns 404 for an unknown path', async () => {
   const response = await fetch(`${baseUrl}/missing-page`);
 
   assert.equal(response.status, 404);
   assert.equal(await response.text(), 'Not Found');
+});
+
+
+test('Registration stores salted hashes and cannot grant admin access', async () => {
+ const values = {name: 'Mock User', email: 'user@example.test', password: 'Mock-password-2026!', role: 'admin'};
+ const options = {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(values)};
+ const response = await fetch(`${baseUrl}/api/register`, options);
+ assert.equal(response.status, 201);
+ const {token} = await response.json();
+ assert.equal(typeof token, 'string');
+ const stored = await User.findOne({email: values.email}).select('+salt +hash').lean();
+ assert.equal(stored.role, 'user'); assert.notEqual(stored.hash, values.password); assert.equal(stored.salt.length, 32);
+ assert.equal((await fetch(`${baseUrl}/api/register`, options)).status, 409);
+ const denied = await fetch(`${baseUrl}/api/trips`, {method: 'POST', headers: {Authorization: `Bearer ${token}`}});
+ assert.equal(denied.status, 403);
+ const login = await fetch(`${baseUrl}/api/login`, {...options, body: JSON.stringify({email: values.email, password: values.password})});
+ assert.equal(login.status, 200);
+});
+
+test('Login accepts an administrator and rejects wrong or missing credentials', async () => {
+ for (const [body, expected] of [
+  [{email: 'admin@example.test', password: 'Mock-password-2026!'}, 200],
+  [{email: 'admin@example.test', password: 'wrong'}, 401],
+  [{email: 'missing@example.test', password: 'wrong'}, 401], [{}, 400],
+  [{email: {$ne: null}, password: 'wrong'}, 400]]) {
+  const response = await fetch(`${baseUrl}/api/login`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+  assert.equal(response.status, expected);
+  if (expected === 200) assert.equal(typeof (await response.json()).token, 'string');
+ }
+});
+
+test('Every write endpoint rejects absent, malformed, tampered, and expired tokens', async () => {
+ const jwt = require('jsonwebtoken');
+ const expired = jwt.sign({role: 'admin'}, process.env.JWT_SECRET || 'incorrect-secret', {expiresIn: -1, issuer: 'travlr', audience: 'travlr-admin'});
+ const headers = [undefined, 'Basic secret', 'Bearer garbage', `Bearer ${adminToken.slice(0, -8)}tampered`, `Bearer ${expired}`];
+ for (const method of ['POST', 'PUT', 'DELETE']) {
+  const url = `${baseUrl}/api/trips${method === 'POST' ? '' : '/' + trips[0].code}`;
+  for (const header of headers) {
+   const response = await fetch(url, {method, headers: header ? {Authorization: header} : {}});
+   assert.equal(response.status, 401, `${method} must reject ${header || 'missing token'}`);
+  }
+ }
+ assert.equal(await Trip.countDocuments(), trips.length);
+});
+
+test('Deleted and demoted administrators lose write access', async () => {
+ const user = new User({name: 'Temporary Admin', email: 'temporary@example.test', role: 'admin'});
+ await user.setPassword('Temporary-password!'); await user.save();
+ const token = tokenFor(user);
+ await User.updateOne({_id: user._id}, {$set: {role: 'user'}});
+ const options = {method: 'DELETE', headers: {Authorization: `Bearer ${token}`}};
+ assert.equal((await fetch(`${baseUrl}/api/trips/${trips[0].code}`, options)).status, 403);
+ await User.deleteOne({_id: user._id});
+ assert.equal((await fetch(`${baseUrl}/api/trips/${trips[0].code}`, options)).status, 401);
 });

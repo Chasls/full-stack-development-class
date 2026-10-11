@@ -11,6 +11,7 @@ const publicDirectory = path.join(__dirname, 'public');
 const viewsDirectory = path.join(__dirname, 'app_server', 'views');
 
 app.disable('x-powered-by');
+app.use(express.json({ limit: '100kb' }));
 app.set('views', viewsDirectory);
 app.set('view engine', 'hbs');
 hbs.registerPartials(path.join(viewsDirectory, 'partials'));
@@ -26,6 +27,12 @@ app.get('/health', (_request, response) => {
 
 app.use('/', travelerRouter);
 app.use('/api', apiRouter);
+
+const adminDirectory = path.join(__dirname, 'app_admin', 'dist', 'app-admin', 'browser');
+app.use('/admin', express.static(adminDirectory));
+app.get(/^\/admin(?:\/.*)?$/, (_request, response) => {
+  response.sendFile(path.join(adminDirectory, 'index.html'));
+});
 
 app.use((_request, response) => {
   response.status(404).type('text').send('Not Found');

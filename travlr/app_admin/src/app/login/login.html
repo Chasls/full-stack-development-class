@@ -1,0 +1,9 @@
+<section class="mx-auto" style="max-width: 440px">
+<p class="eyebrow">TRAVLR ADMIN</p><h1 class="h2">Administrator login</h1><p class="text-secondary">Log in to add, edit, or delete trips.</p>
+@if (error()) { <div class="alert alert-danger" role="alert">{{ error() }}</div> }
+<form [formGroup]="form" (ngSubmit)="login()">
+<label for="email" class="form-label">Email</label><input id="email" type="email" autocomplete="username" class="form-control mb-3" formControlName="email">
+<label for="password" class="form-label">Password</label><input id="password" type="password" autocomplete="current-password" class="form-control mb-3" formControlName="password">
+@if (form.invalid && form.touched) { <p role="alert">Enter a valid email and password.</p> }
+<button class="btn btn-primary" type="submit" [disabled]="busy()">{{ busy() ? 'Logging in...' : 'Log in' }}</button>
+</form></section>

@@ -1,0 +1,39 @@
+{
+  "backend": {
+    "tests": 20,
+    "passed": 20,
+    "failed": 0
+  },
+  "angular": {
+    "tests": 14,
+    "passed": 14,
+    "failed": 0
+  },
+  "postman": {
+    "requests": 23,
+    "assertions": 32,
+    "failed": 0
+  },
+  "browser": {
+    "passed": true,
+    "checks": [
+      "anonymous controls hidden",
+      "direct add route guarded",
+      "wrong password rejected",
+      "administrator login",
+      "authenticated create",
+      "edit and refresh persistence",
+      "public website reflects update",
+      "cancel deletion",
+      "authenticated delete",
+      "logout clears token",
+      "direct edit route guarded",
+      "mobile login layout",
+      "expired session hides controls",
+      "no browser script errors"
+    ]
+  },
+  "backend_dependency_audit": {
+    "vulnerabilities": 0
+  }
+}

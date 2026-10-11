@@ -1,0 +1,8 @@
+<nav class="navbar navbar-dark bg-dark mb-4"><div class="container">
+<a class="navbar-brand" routerLink="/">TRAVLR <span class="brand-detail">GETAWAYS &middot; ADMIN</span></a>
+<a class="btn btn-outline-light btn-sm" href="/travel" target="_blank" rel="noopener">View public website</a>
+<div class="d-flex gap-2 align-items-center">
+@if (auth.isAdmin()) { <span class="text-light">{{ auth.identity()?.name }}</span><button class="btn btn-outline-light btn-sm" (click)="logout()">Log out</button> }
+@else { <a class="btn btn-outline-light btn-sm" routerLink="/login">Log in</a> }
+</div></div></nav>
+<main class="container pb-5"><router-outlet /></main>
