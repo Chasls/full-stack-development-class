@@ -1,0 +1,21 @@
+<a routerLink="/">Back to trips</a><p class="eyebrow mt-4">CUSTOMER MANAGEMENT</p><h1 class="h2">Customers</h1>
+<p class="text-secondary">Maintain customer names and email addresses. Administrator accounts are managed locally.</p>
+@if (message()) { <p class="alert alert-success" role="status">{{ message() }}</p> }
+@if (error()) { <p class="alert alert-danger" role="alert">{{ error() }} <button class="btn btn-sm btn-outline-danger" (click)="load()">Retry</button></p> }
+@if (editing(); as customer) {
+<form [formGroup]="form" (ngSubmit)="save()" class="card p-4 mb-4" aria-label="Edit customer">
+<h2 class="h5">Edit customer</h2><label for="customer-name" class="form-label">Name</label><input id="customer-name" class="form-control mb-3" formControlName="name">
+<label for="customer-email" class="form-label">Email</label><input id="customer-email" type="email" class="form-control mb-3" formControlName="email">
+@if (form.invalid && form.touched) { <p role="alert">Enter a name and valid email.</p> }
+<div><button type="submit" class="btn btn-primary me-2" [disabled]="busy()">Save customer</button><button type="button" class="btn btn-outline-secondary" (click)="editing.set(null)">Cancel</button></div></form>
+}
+@if (pendingDelete(); as customer) {
+<section class="alert alert-warning" aria-label="Confirm customer deletion"><p>Delete {{ customer.name }} and their reservations? Their login access will be removed.</p>
+<button class="btn btn-danger me-2" (click)="remove()" [disabled]="busy()">Confirm customer deletion</button><button class="btn btn-outline-secondary" (click)="pendingDelete.set(null)">Cancel</button></section>
+}
+@if (loading()) { <p role="status">Loading customers...</p> }
+@else {
+<div class="row g-3">@for (customer of customers(); track customer._id) {
+<section class="col-md-6"><div class="card p-3 h-100"><h2 class="h5">{{ customer.name }}</h2><p>{{ customer.email }}</p><div><button class="btn btn-primary me-2" (click)="edit(customer)" [disabled]="busy()">Edit customer</button><button class="btn btn-outline-danger" (click)="pendingDelete.set(customer)" [disabled]="busy()">Delete customer</button></div></div></section>
+} @empty { <p>No customer accounts yet.</p> }</div>
+}

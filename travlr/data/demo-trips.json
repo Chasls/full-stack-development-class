@@ -1,0 +1,42 @@
+[
+  {
+    "code": "GALE-REEF",
+    "name": "Gale Reef",
+    "length": "7 days",
+    "start": "2027-06-12T00:00:00.000Z",
+    "resort": "Travlr Ocean Resort",
+    "perPerson": "$1,299",
+    "image": "reef1.jpg",
+    "description": "<p><strong>Gale Reef:</strong> Spend seven days exploring clear water, colorful coral, and quiet beaches. The trip includes guided snorkeling, a sunset boat cruise, and a stay at Travlr Ocean Resort.</p>"
+  },
+  {
+    "code": "DAWSON-REEF",
+    "name": "Dawson's Reef",
+    "length": "5 days",
+    "start": "2027-07-10T00:00:00.000Z",
+    "resort": "Travlr Coral Resort",
+    "perPerson": "$999",
+    "image": "reef2.jpg",
+    "description": "<p><strong>Dawson's Reef:</strong> Discover a lively reef during five days of kayaking, swimming, and optional guided diving. Relax each evening at Travlr Coral Resort.</p>"
+  },
+  {
+    "code": "CLAIRE-REEF",
+    "name": "Claire's Reef",
+    "length": "6 days",
+    "start": "2027-08-14T00:00:00.000Z",
+    "resort": "Travlr Lagoon Resort",
+    "perPerson": "$1,149",
+    "image": "reef3.jpg",
+    "description": "<p><strong>Claire's Reef:</strong> Enjoy six days of coral viewing, beach walks, and local seafood. Your stay at Travlr Lagoon Resort includes easy access to the reef and nearby island trails.</p>"
+  },
+  {
+    "code": "ISLAND-ESCAPE",
+    "name": "Island Escape Adventure",
+    "length": "7 days",
+    "start": "2027-09-18T00:00:00.000Z",
+    "resort": "Travlr Island Resort",
+    "perPerson": "$1,499",
+    "image": "reef1.jpg",
+    "description": "<p>Explore quiet beaches, snorkel through colorful coral, and enjoy a sunset cruise during seven days at Travlr Island Resort.</p>"
+  }
+]

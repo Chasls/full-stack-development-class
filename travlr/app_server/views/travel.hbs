@@ -15,14 +15,21 @@
 					<div>
 						<div class="body">
 							<h1>Travel</h1>
+<form method="get" action="/travel" class="customer-form search-form">
+ <label>Location or resort <input name="location" value="{{location}}" maxlength="100" placeholder="Reef or resort name"></label>
+ <label>Maximum price per person <input name="maxPrice" type="number" min="0" step="0.01" value="{{maxPrice}}" placeholder="1500"></label>
+ <button type="submit">Search trips</button><a href="/travel">Clear search</a>
+</form><p id="customer-status" role="status"></p>
 							<ul id="sites">
 								{{#each trips}}
 								<li>
 									<a href="/travel"><img src="/images/{{this.image}}" alt="{{this.name}}"></a>
 									<h2><a href="/travel">{{this.name}}</a></h2>
 									{{{this.description}}}
+<p><strong>{{this.perPerson}}</strong> per person &middot; {{this.length}}<br>Resort: {{this.resort}}<br>Departure: {{this.startDisplay}}</p>
+<button type="button" class="book-trip" data-code="{{this.code}}">Book this trip</button>
 								</li>
-								{{/each}}
+								{{else}}<li><p>No trips match your search. Try a different location or price.</p></li>{{/each}}
 							</ul>
 						</div>
 					</div>
@@ -31,5 +38,6 @@
 		</div>
 		{{> footer}}
 	</div>
+<script src="/js/customer.js" defer></script>
 </body>
 </html>

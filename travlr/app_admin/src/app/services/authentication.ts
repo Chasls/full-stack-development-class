@@ -1,17 +1,19 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { tap } from 'rxjs';
 interface Identity { name: string; email: string; role: string; exp: number; }
 @Injectable({providedIn: 'root'})
 export class AuthenticationService {
  private http = inject(HttpClient);
+ private router = inject(Router);
  private stored = signal(sessionStorage.getItem('travlr-token') || '');
  private timer?: ReturnType<typeof setTimeout>;
  constructor() { this.scheduleExpiry(); }
  private scheduleExpiry() {
   if (this.timer) clearTimeout(this.timer);
   const identity = this.identity();
-  if (identity) this.timer = setTimeout(() => this.logout(), Math.min(identity.exp * 1000 - Date.now(), 2147483647));
+  if (identity) this.timer = setTimeout(() => { this.logout(); void this.router.navigate(['/login']); }, Math.min(identity.exp * 1000 - Date.now(), 2147483647));
   else this.logout();
  }
  identity(): Identity | null {

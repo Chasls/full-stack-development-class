@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "checks": [
+    "anonymous controls hidden",
+    "direct add route guarded",
+    "wrong password rejected",
+    "administrator login",
+    "authenticated create",
+    "edit and refresh persistence",
+    "public website reflects update",
+    "cancel deletion",
+    "authenticated delete",
+    "logout clears token",
+    "direct edit route guarded",
+    "mobile login layout",
+    "expired session hides controls",
+    "customer registration and login",
+    "location and price search",
+    "customer booking and itinerary persistence",
+    "reservation cancellation",
+    "admin customer edit and deletion",
+    "no browser script errors"
+  ]
+}

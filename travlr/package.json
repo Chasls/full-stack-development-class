@@ -2,7 +2,7 @@
   "name": "travlr",
   "version": "1.0.0",
   "private": true,
-  "description": "Module Seven Travlr Getaways secure full stack application",
+  "description": "Travlr Getaways final MEAN application with customer reservations and secure administration",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -12,7 +12,9 @@
     "seed:module6": "node app_api/models/seed.js data/module6-added-trip.json",
     "build:admin": "npm --prefix app_admin run build",
     "test:admin": "npm --prefix app_admin test -- --watch=false",
-    "create:admin": "node app_api/models/create-admin.js"
+    "create:admin": "node app_api/models/create-admin.js",
+    "seed:demo": "node app_api/models/seed.js data/demo-trips.json",
+    "test:browser": "node app_admin/e2e/final-project-check.cjs"
   },
   "engines": {
     "node": ">=22.12"

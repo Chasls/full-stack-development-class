@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Travlr Module Seven Security and CRUD",
+    "name": "Travlr Final Project API and Security",
     "description": "Mock-user authentication, denied writes, and authenticated administrator CRUD.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -746,6 +746,244 @@
           "script": {
             "exec": [
               "pm.test('returns HTTP 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Anonymous itinerary is denied",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/reservations"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 401', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Regular user cannot list customers",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/users"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 403', () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customer books a trip",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/reservations",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"tripCode\": \"GALE-REEF\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('reservationId', pm.response.json()._id);",
+              "pm.test('booking has requested trip', () => pm.expect(pm.response.json().tripCode).to.eql('GALE-REEF'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customer retrieves itinerary",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/reservations"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('booking persisted', () => pm.expect(pm.response.json()).to.have.lengthOf(1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customer cancels reservation",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{userToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/reservations/{{reservationId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('booking is cancelled', () => pm.expect(pm.response.json().status).to.eql('cancelled'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator lists customers",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/users"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));",
+              "const user = pm.response.json().find(u => u.email === pm.collectionVariables.get('mockEmail'));",
+              "pm.test('registered customer is listed', () => pm.expect(user).to.exist);",
+              "pm.test('password hash is excluded', () => pm.expect(user).not.to.have.property('hash'));",
+              "pm.collectionVariables.set('customerId', user._id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator updates customer",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/users/{{customerId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"Updated Mock Customer\", \"email\": \"{{mockEmail}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator deletes mock customer",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/users/{{customerId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('returns HTTP 204', () => pm.response.to.have.status(204));"
             ]
           }
         }
